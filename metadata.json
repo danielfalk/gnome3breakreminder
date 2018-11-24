@@ -3,5 +3,6 @@
 	"uuid": "breakreminder@danielfalk22.gmail.com",
 	"name": "Break Reminder",
 	"version": 1,
-	"description": "Get a reminder to take a break"
+	"description": "Get a reminder to take a break",
+	"url": "https://github.com/danielfalk/gnome3breakreminder"
 }
