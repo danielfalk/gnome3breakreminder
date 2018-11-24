@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema path="/org/gnome/shell/extensions/breakreminder/" id="org.gnome.shell.extensions.breakreminder">
+    <key name="minutes" type="i">
+      <default>20</default>
+      <summary>Minutes</summary>
+      <description>Minutes for the timer to start at</description>
+    </key>
+    <key name="message" type="s">
+      <default>"Time to take a break"</default>
+      <summary>Message</summary>
+      <description>Notification message to display when the timer finishes.  Leave it blank to turn off the popup.</description>
+    </key>
+    <key name="enabled" type="b">
+      <default>true</default>
+      <summary>Enabled</summary>
+      <description>Whether the timer is running</description>
+    </key>
+  </schema>
+</schemalist>
