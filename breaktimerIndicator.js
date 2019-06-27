@@ -126,7 +126,12 @@ const Indicator = new Lang.Class({
       }
       try{
         let minutes =  this.settings.get_int('minutes');
-        let idleSeconds = GLib.spawn_command_line_sync("xprintidle")[1] / 1000;
+        let idleSeconds = 0;
+        try {
+          idleSeconds = GLib.spawn_command_line_sync("xprintidle")[1] / 1000;
+        } catch (e) {
+          global.log("Error getting idle amount.  Is xprintidle installed?");
+        }
         let adj = ((idleSeconds / 30) > .8) ? -Math.max(idleSeconds, 30) : 30;
         this.elapsed = Math.max(0, this.elapsed + adj);
         if (debug)
