@@ -1,8 +1,8 @@
 {
-	"shell-version": ["3.10", "3.12", "3.14", "3.18", "3.26"],
+	"shell-version": ["3.10", "3.12", "3.14", "3.18", "3.26", "3.36"],
 	"uuid": "breakreminder@danielfalk22.gmail.com",
 	"name": "Break Reminder",
-	"version": 1,
+	"version": 4,
 	"description": "Get a reminder to take a break",
 	"url": "https://github.com/danielfalk/gnome3breakreminder"
 }

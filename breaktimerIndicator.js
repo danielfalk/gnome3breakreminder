@@ -102,8 +102,8 @@ const Indicator = new Lang.Class({
         this.menu.addMenuItem(toggle);
         
         let slider = new SliderItem(minutes / 59);
-        slider.connect('value-changed', Lang.bind(this, function (target, value){
-            let val = Math.ceil(value * 59) + 1;
+        slider.connect('notify::value', Lang.bind(this, function () {
+            let val = Math.ceil(slider.value * 59) + 1;
             toggle.label.set_text(message.format(val));
             this.settings.set_int('minutes', val);
         }));
@@ -190,14 +190,14 @@ const SliderItem = new Lang.Class({
 
     _init: function(value) {
         this.parent();
-        var layout = new Clutter.TableLayout();
+        var layout = new Clutter.GridLayout();
         this._box = new St.Widget({
 							style_class: 'slider-item',
 							layout_manager: layout});
 
         this._slider = new Slider.Slider(value);
 
-        layout.pack(this._slider.actor, 2, 0);
+        layout.attach(this._slider.actor, 2, 0, 1, 1);
         this.actor.add(this._box, {span: -1, expand: true});
     },
 
