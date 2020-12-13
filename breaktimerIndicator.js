@@ -1,6 +1,4 @@
-const Clutter = imports.gi.Clutter;
-const GLib = imports.gi.GLib;
-const Gio = imports.gi.Gio;
+const { Clutter, GLib, Gio, St, GObject } = imports.gi;
 const Lang = imports.lang;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
@@ -9,16 +7,17 @@ const MessageTray = imports.ui.messageTray;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Slider = imports.ui.slider;
-const St = imports.gi.St;
 const Util = Me.imports.util;
 
-var debug = false;
 var ts = new Date().valueOf();
 
+const debug = (...messages) => {
+  global.log("BR:", ...messages);
+};
 class BreakTimerIndicator extends PanelMenu.Button {
   constructor(...args) {
-    log("constructor");
-    log(`got into constructor: ${args}`);
+    debug("constructor");
+    debug(`got into constructor: ${args}`);
     super(...args);
     this.destroyed = false;
     this.init();
@@ -31,7 +30,6 @@ class BreakTimerIndicator extends PanelMenu.Button {
   }
 
   init() {
-    //this.parent(St.Align.START);
     this.settings = Util.getSettings();
 
     this.meter = new St.DrawingArea({ reactive: false, width: 18, height: 18 });
@@ -42,16 +40,11 @@ class BreakTimerIndicator extends PanelMenu.Button {
         this.meter.queue_repaint();
       }),
     );
-    this.actor.add_actor(this.meter);
-    this.connect("destroy", Lang.bind(this, this.onDestroy));
+    this.add_child(this.meter);
 
     this.startTimer();
 
     this.buildMenu();
-  }
-
-  _onDestroy() {
-    this.source && this.source.destroy();
   }
 
   drawMeter() {
@@ -122,6 +115,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
       Lang.bind(this, function () {
         let val = Math.ceil(slider.value * 59) + 1;
         toggle.label.set_text(message.format(val));
+        debug(`setting minutes ${val} (slider: ${slider.value})`);
         this.settings.set_int("minutes", val);
       }),
     );
@@ -146,18 +140,23 @@ class BreakTimerIndicator extends PanelMenu.Button {
       this.startTimer();
       return false;
     }
+
     try {
       let minutes = this.settings.get_int("minutes");
       let idleSeconds = 0;
+
       try {
         idleSeconds = GLib.spawn_command_line_sync("xprintidle")[1] / 1000;
       } catch (e) {
-        global.log("Error getting idle amount.  Is xprintidle installed?");
+        debug("Error getting idle amount.  Is xprintidle installed?");
       }
+
       let adj = idleSeconds / 30 > 0.8 ? -Math.max(idleSeconds, 30) : 30;
       this.elapsed = Math.max(0, this.elapsed + adj);
-      if (debug) global.log(ts + " " + timerId + " I:" + idleSeconds + ", A:" + adj + ", E:" + this.elapsed);
+      debug(ts + " " + timerId + " I:" + idleSeconds + ", A:" + adj + ", E:" + this.elapsed);
+
       Mainloop.timeout_add_seconds(30, Lang.bind(this, this.refreshTimer, timerId, initialMinutes));
+
       if (this.elapsed / 60 >= minutes) {
         this.timerFinished();
       } else if (this.source) {
@@ -165,7 +164,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
         this.source = null;
       }
     } catch (e) {
-      global.log("error: " + e.toString());
+      debug("error: " + e.toString());
     } finally {
       return false;
     }
@@ -177,7 +176,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
       if (!this.source) this.source = new MessageTray.Source("Break Timer", "avatar-default");
       if (!Main.messageTray.contains(this.source)) Main.messageTray.add(this.source);
       if (!this.notification) {
-        if (debug) global.log("timer finished");
+        debug("timer finished");
         this.notification = new MessageTray.Notification(this.source, "Break Reminder", message, {
           gicon: Gio.icon_new_for_string(Me.path + "/icon.png"),
         });
@@ -192,7 +191,6 @@ class BreakTimerIndicator extends PanelMenu.Button {
   }
 
   startTimer() {
-    log("enter startTimer");
     this.timerId = Math.floor(Math.random() * 10000);
     this.elapsed = 0;
     this.refreshTimer(this.timerId, this.settings.get_int("minutes"));
@@ -209,7 +207,7 @@ var Indicator = GObject.registerClass(BreakTimerIndicator);
 
 class SliderItemClass extends PopupMenu.PopupBaseMenuItem {
   _init(value) {
-    log("Slider init");
+    debug("Slider init");
     //this.parent();
     super._init();
     var layout = new Clutter.GridLayout();
@@ -241,38 +239,3 @@ class SliderItemClass extends PopupMenu.PopupBaseMenuItem {
   }
 }
 var SliderItem = GObject.registerClass(SliderItemClass);
-
-const SliderItemX = new Lang.Class({
-  Name: "SliderItem",
-  Extends: PopupMenu.PopupBaseMenuItem,
-
-  _init: function (value) {
-    this.parent();
-    var layout = new Clutter.GridLayout();
-    this._box = new St.Widget({
-      style_class: "slider-item",
-      layout_manager: layout,
-    });
-
-    this._slider = new Slider.Slider(value);
-
-    layout.attach(this._slider.actor, 2, 0, 1, 1);
-    this.actor.add(this._box, { span: -1, expand: true });
-  },
-
-  setValue: function (value) {
-    this._slider.setValue(value);
-  },
-
-  getValue: function () {
-    return this._slider._getCurrentValue();
-  },
-
-  setIcon: function (icon) {
-    this._icon.icon_name = icon + "-symbolic";
-  },
-
-  connect: function (signal, callback) {
-    this._slider.connect(signal, callback);
-  },
-});
