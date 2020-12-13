@@ -146,7 +146,9 @@ class BreakTimerIndicator extends PanelMenu.Button {
       let idleSeconds = 0;
 
       try {
-        idleSeconds = GLib.spawn_command_line_sync("xprintidle")[1] / 1000;
+        const result = GLib.spawn_command_line_sync("xprintidle")[1];
+        const ms = Number(imports.byteArray.toString(result));
+        idleSeconds = ms / 1000;
       } catch (e) {
         debug("Error getting idle amount.  Is xprintidle installed?");
       }
