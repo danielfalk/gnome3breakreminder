@@ -5,16 +5,22 @@ const Tweener = imports.ui.tweener;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Indicator = Me.imports.breaktimerIndicator.Indicator;
 
-var indicator;
+class Extension {
+  constructor(uuid) {
+    this._uuid = uuid;
+  }
 
-function init() {}
+  enable() {
+    this._indicator = new Indicator();
+    Main.panel.addToStatusArea(this._uuid, this._indicator);
+  }
 
-function enable() {
-  indicator = new Indicator();
-  Main.panel.addToStatusArea("breakIndicator", indicator);
+  disable() {
+    this._indicator.destroy();
+    this._indicator = null;
+  }
 }
 
-function disable() {
-  Main.panel.statusArea.breakIndicator.destroy();
-  delete Main.panel.statusArea.breakIndicator;
+function init(meta) {
+  return new Extension(meta.uuid);
 }
