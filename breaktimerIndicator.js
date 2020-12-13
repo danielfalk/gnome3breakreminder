@@ -112,7 +112,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
     let slider = new SliderItem(minutes / 59);
     slider.connect(
       "notify::value",
-      Lang.bind(this, function () {
+      Lang.bind(this, function (slider) {
         let val = Math.ceil(slider.value * 59) + 1;
         toggle.label.set_text(message.format(val));
         debug(`setting minutes ${val} (slider: ${slider.value})`);
