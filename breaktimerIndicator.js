@@ -175,20 +175,24 @@ class BreakTimerIndicator extends PanelMenu.Button {
   timerFinished() {
     let message = this.settings.get_string("message");
     if (message && !this.destroyed) {
-      if (!this.source) this.source = new MessageTray.Source("Break Timer", "avatar-default");
-      if (!Main.messageTray.contains(this.source)) Main.messageTray.add(this.source);
-      if (!this.notification) {
-        debug("timer finished");
-        this.notification = new MessageTray.Notification(this.source, "Break Reminder", message, {
-          gicon: Gio.icon_new_for_string(Me.path + "/icon.png"),
+      if (!this.source) {
+        this.source = new MessageTray.Source("Break Reminder", Me.path + "/icon.png");
+
+        Main.messageTray.add(this.source);
+        this.source.connect("destroy", () => {
+          debug("notification destroying", !!this.source1);
+          this.source = null;
         });
-        this.notification.setTransient(true);
       }
-      let notification = new MessageTray.Notification(this.source, "Break Reminder", message, {
+
+      const notification = new MessageTray.Notification(this.source, "Break Reminder", message, {
         gicon: Gio.icon_new_for_string(Me.path + "/icon.png"),
       });
+
       notification.setTransient(true);
-      this.source.notify(notification);
+      notification.setTransient(MessageTray.Urgency.NORMAL);
+
+      this.source.showNotification(notification);
     }
   }
 
@@ -200,6 +204,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
 
   destroy() {
     super.destroy();
+    this.source && this.source.destroy();
     this.destroyed = true;
     //TODO: should we remove this?
     //this.menu.removeAll();
