@@ -9,28 +9,15 @@ const PopupMenu = imports.ui.popupMenu;
 const Slider = imports.ui.slider;
 const Util = Me.imports.util;
 
-var ts = new Date().valueOf();
+const debug = (...messages) => {};
 
-const debug = (...messages) => {
-  global.log("BR:", ...messages);
-};
 class BreakTimerIndicator extends PanelMenu.Button {
-  constructor(...args) {
-    debug("constructor");
-    debug(`got into constructor: ${args}`);
-    super(...args);
-    this.destroyed = false;
-    this.init();
-  }
-
   _init() {
-    this.destroyed = false;
     super._init(0.0, "Break Reminder");
-    this.init();
-  }
 
-  init() {
     this.settings = Util.getSettings();
+
+    this.destroyed = false;
 
     this.meter = new St.DrawingArea({ reactive: false, width: 18, height: 18 });
     this.meter.connect("repaint", Lang.bind(this, this.drawMeter));
@@ -59,10 +46,12 @@ class BreakTimerIndicator extends PanelMenu.Button {
     let r = scale * 1.5;
 
     let pct = this.elapsed / 60 / this.settings.get_int("minutes");
+
     if (!enabled) [res, c] = Clutter.Color.from_string("#666");
     else if (pct >= 1) [res, c] = Clutter.Color.from_string("#c22");
     else if (pct >= 0.8) [res, c] = Clutter.Color.from_string("#855");
     else if (pct >= 0.9) [res, c] = Clutter.Color.from_string("#a33");
+
     Clutter.cairo_set_source_color(cr, c);
 
     cr.translate(xc, yc);
@@ -115,7 +104,6 @@ class BreakTimerIndicator extends PanelMenu.Button {
       Lang.bind(this, function (slider) {
         let val = Math.ceil(slider.value * 59) + 1;
         toggle.label.set_text(message.format(val));
-        debug(`setting minutes ${val} (slider: ${slider.value})`);
         this.settings.set_int("minutes", val);
       }),
     );
@@ -155,7 +143,6 @@ class BreakTimerIndicator extends PanelMenu.Button {
 
       let adj = idleSeconds / 30 > 0.8 ? -Math.max(idleSeconds, 30) : 30;
       this.elapsed = Math.max(0, this.elapsed + adj);
-      debug(ts + " " + timerId + " I:" + idleSeconds + ", A:" + adj + ", E:" + this.elapsed);
 
       this.meter.queue_repaint();
 
@@ -168,10 +155,10 @@ class BreakTimerIndicator extends PanelMenu.Button {
         this.source = null;
       }
     } catch (e) {
-      debug("error: " + e.toString());
-    } finally {
-      return false;
+      debug("error: " + e.toString() + "\n" + e.stack);
     }
+
+    return false;
   }
 
   timerFinished() {
@@ -181,10 +168,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
         this.source = new MessageTray.Source("Break Reminder", Me.path + "/icon.png");
 
         Main.messageTray.add(this.source);
-        this.source.connect("destroy", () => {
-          debug("notification destroying", !!this.source1);
-          this.source = null;
-        });
+        this.source.connect("destroy", () => (this.source = null));
       }
 
       const notification = new MessageTray.Notification(this.source, "Break Reminder", message, {
@@ -208,16 +192,12 @@ class BreakTimerIndicator extends PanelMenu.Button {
     super.destroy();
     this.source && this.source.destroy();
     this.destroyed = true;
-    //TODO: should we remove this?
-    //this.menu.removeAll();
   }
 }
 var Indicator = GObject.registerClass(BreakTimerIndicator);
 
 class SliderItemClass extends PopupMenu.PopupBaseMenuItem {
   _init(value) {
-    debug("Slider init");
-    //this.parent();
     super._init();
     var layout = new Clutter.GridLayout();
     this._box = new St.Widget({
