@@ -45,7 +45,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
     let scale = Math.min(xc, yc) / 2;
     let r = scale * 1.5;
 
-    let pct = this.elapsed / 60 / this.settings.get_int("minutes");
+    let pct = this.elapsed / 60 / (this.settings.get_int("minutes") || 20);
 
     if (!enabled) [res, c] = Clutter.Color.from_string("#666");
     else if (pct >= 1) [res, c] = Clutter.Color.from_string("#c22");
@@ -86,7 +86,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
   buildMenu() {
     let toggle = new PopupMenu.PopupSwitchMenuItem("", this.settings.get_boolean("enabled"));
     let message = "Remind every %s minutes";
-    let minutes = this.settings.get_int("minutes");
+    let minutes = this.settings.get_int("minutes") || 20;
 
     toggle.label.set_text(message.format(minutes));
     toggle.connect(
@@ -185,7 +185,7 @@ class BreakTimerIndicator extends PanelMenu.Button {
   startTimer() {
     this.timerId = Math.floor(Math.random() * 10000);
     this.elapsed = 0;
-    this.refreshTimer(this.timerId, this.settings.get_int("minutes"));
+    this.refreshTimer(this.timerId, this.settings.get_int("minutes") || 20);
   }
 
   destroy() {
