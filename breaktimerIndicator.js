@@ -157,6 +157,8 @@ class BreakTimerIndicator extends PanelMenu.Button {
       this.elapsed = Math.max(0, this.elapsed + adj);
       debug(ts + " " + timerId + " I:" + idleSeconds + ", A:" + adj + ", E:" + this.elapsed);
 
+      this.meter.queue_repaint();
+
       Mainloop.timeout_add_seconds(30, Lang.bind(this, this.refreshTimer, timerId, initialMinutes));
 
       if (this.elapsed / 60 >= minutes) {
