@@ -208,7 +208,7 @@ class SliderItemClass extends PopupMenu.PopupBaseMenuItem {
     this._slider = new Slider.Slider(value);
 
     layout.attach(this._slider, 2, 0, 1, 1);
-    this.add(this._box, { span: -1, expand: true });
+    this.add(this._box.actor, { span: -1, expand: true });
   }
 
   setValue(value) {
