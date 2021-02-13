@@ -202,16 +202,9 @@ var Indicator = GObject.registerClass(BreakTimerIndicator);
 class SliderItemClass extends PopupMenu.PopupBaseMenuItem {
   _init(value) {
     super._init();
-    var layout = new Clutter.GridLayout();
-    this._box = new St.Widget({
-      style_class: "slider-item",
-      layout_manager: layout,
-    });
 
     this._slider = new Slider.Slider(value);
-
-    layout.attach(this._slider, 2, 0, 1, 1);
-    this.add(this._box.actor, { span: -1, expand: true });
+    this.add_child(this._slider);
   }
 
   setValue(value) {
