@@ -168,14 +168,14 @@ class BreakTimerIndicator extends PanelMenu.Button {
     let message = this.settings.get_string("message");
     if (message && !this.destroyed) {
       if (!this.source) {
-        this.source = new MessageTray.Source("Break Reminder", Me.path + "/icon.png");
+        this.source = new MessageTray.Source("Break Reminder", Me.path + "/icon.svg");
 
         Main.messageTray.add(this.source);
         this.source.connect("destroy", () => (this.source = null));
       }
 
       const notification = new MessageTray.Notification(this.source, "Break Reminder", message, {
-        gicon: Gio.icon_new_for_string(Me.path + "/icon.png"),
+        gicon: Gio.icon_new_for_string(Me.path + "/icon.svg"),
       });
 
       notification.setTransient(true);
