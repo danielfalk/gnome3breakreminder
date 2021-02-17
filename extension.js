@@ -1,6 +1,5 @@
 const St = imports.gi.St;
 const Main = imports.ui.main;
-const Tweener = imports.ui.tweener;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Indicator = Me.imports.breaktimerIndicator.Indicator;
